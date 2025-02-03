@@ -49,6 +49,25 @@ const MyComponent = () => {
     }
   };
 
+  const handleAddToLibrary = async (imdbID: string) => {
+    try {
+      const response = await fetch(`http://localhost:3000/library/add-movie/${imdbID}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+  
+      if (!response.ok) throw new Error("Erro ao adicionar filme à biblioteca");
+  
+      alert("Filme adicionado à biblioteca com sucesso!");
+    } catch (error) {
+      console.error("Erro ao adicionar filme:", error);
+      alert("Erro ao adicionar filme à biblioteca");
+    }
+  };
+  
+
   return (
     <>
       <AppBar position="fixed" sx={{ backgroundColor: "#dce0e2", boxShadow: "none" }}>
@@ -132,7 +151,7 @@ const MyComponent = () => {
                   <Card>
                     <CardMedia
                       component="img"
-                      height="300"
+                      height="320"
                       image={movie.Poster}
                       alt={movie.Title}
                     />
@@ -146,6 +165,8 @@ const MyComponent = () => {
                       </Box>
                       <Box sx={{ display: "flex", justifyContent: "center" }}>
                         <Button
+                          onClick={() => handleAddToLibrary(movie.imdbID)} 
+                          // style={{ cursor: 'pointer' }}
                           variant="contained"
                           startIcon={<LibraryBooksIcon />}
                           sx={{
