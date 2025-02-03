@@ -32,21 +32,24 @@ export class LibraryService {
   }
 
   async addMovieToLibrary(movieId: string): Promise<Library> {
-    const movieData = await this.searchService.getMovieById(movieId);
+    let movie = await this.movieService.findById(movieId);
 
-    if (!movieData) {
-      throw new NotFoundException('Movie not found');
+    if (!movie) {
+      const movieData = await this.searchService.getMovieById(movieId);
+  
+      if (!movieData) {
+        throw new NotFoundException('Movie not found');
+      }
+  
+      movie = await this.movieService.create({
+        title: movieData.Title,
+        poster: movieData.Poster,
+        imdbID: movieData.imdbID,
+        imdbRating: movieData.imdbRating,
+      });
     }
 
-    const movie = await this.movieService.create({
-      title: movieData.Title,
-      poster: movieData.Poster,
-      imdbID: movieData.imdbID,
-      imdbRating: movieData.imdbRating,
-    });
-
     const library = await this.createLibraryIfNotExists();
-    // console.log(library.movies)
 
     if (!library.movies) {
       library.movies = [];
