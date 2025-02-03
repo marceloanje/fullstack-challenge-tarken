@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import { Movie } from "src/movie/movie.entity";
 
 @Entity('library')
@@ -6,6 +6,6 @@ export class Library {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => Movie, { onDelete: 'CASCADE'})
-    movie: Movie;
+    @OneToMany(() => Movie, (movie) => movie.library, { cascade: true })
+    movies: Movie[];
 }

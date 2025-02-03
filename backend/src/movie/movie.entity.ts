@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Library } from 'src/library/library.entity';
 
 @Entity('movie')
 export class Movie {
@@ -11,6 +12,12 @@ export class Movie {
   @Column()
   poster: string;
 
+  @Column()
+  imdbID: string;
+
   @Column({ type: 'float' })
   imdbRating: number;
+
+  @ManyToOne(() => Library, (library) => library.movies, { onDelete: 'CASCADE' })
+  library: Library;
 }

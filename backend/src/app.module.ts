@@ -18,8 +18,9 @@ import { LibraryModule } from './library/library.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
-    SearchModule, 
-    MovieModule, LibraryModule],
+    SearchModule,
+    MovieModule, 
+    LibraryModule],
   controllers: [AppController],
   providers: [AppService],
 })
