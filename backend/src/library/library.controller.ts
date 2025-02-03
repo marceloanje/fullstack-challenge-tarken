@@ -1,4 +1,4 @@
-import { Controller, Post, Param, NotFoundException, Delete } from '@nestjs/common';
+import { Controller, Post, Param, NotFoundException, Delete, Get } from '@nestjs/common';
 import { LibraryService } from './library.service';
 
 @Controller('library')
@@ -26,6 +26,19 @@ export class LibraryController {
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new NotFoundException('Movie not found in library');
+      }
+      throw error;
+    }
+  }
+
+  @Get('movies')
+  async getMoviesInLibrary() {
+    try {
+      const movies = await this.libraryService.getMoviesInLibrary();
+      return { movies };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException('Movies not found');
       }
       throw error;
     }

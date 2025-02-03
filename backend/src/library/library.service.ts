@@ -80,4 +80,17 @@ export class LibraryService {
 
     return library;
   }
+
+  async getMoviesInLibrary(): Promise<Movie[]> {
+    const library = await this.libraryRepository.findOne({
+      where: {},
+      relations: ['movies'],
+    })
+
+    if (!library) {
+      throw new NotFoundException('Library not found');
+    }
+
+    return library.movies;
+  }
 }
