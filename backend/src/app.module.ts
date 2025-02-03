@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SearchModule } from './search/search.module';
 import { MovieModule } from './movie/movie.module';
+import { LibraryModule } from './library/library.module';
 
 @Module({
   imports: [
@@ -18,7 +19,7 @@ import { MovieModule } from './movie/movie.module';
       synchronize: true,
     }),
     SearchModule, 
-    MovieModule],
+    MovieModule, LibraryModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -22,4 +22,19 @@ export class SearchService {
                 )
         );
     }
+
+    async getMovieById(id: string): Promise<any> {
+        const apiUrl = `http://www.omdbapi.com/?apikey=f993b6c&i=${id}`;
+
+        return firstValueFrom(
+            this.HttpService.get<any>(apiUrl)
+                .pipe(
+                    map(response => response.data),
+                    catchError(error => {
+                        console.error('Error querying external API by ID:', error.message);
+                        return throwError(() => new Error('Failed to fetch movie by ID'));
+                    })
+                )
+        );
+    }
 }
