@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AppBar,
   Toolbar,
@@ -43,7 +43,6 @@ const MyComponent = () => {
 
       const data = await response.json();
       setMovies(data.Search || []);
-      // console.log(movies);
     } catch (error) {
       console.error("Erro na requisição:", error);
     }
@@ -66,8 +65,33 @@ const MyComponent = () => {
       alert("Erro ao adicionar filme à biblioteca");
     }
   };
-  
 
+  const handleGetMoviesInLibrary = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/library/movies");
+      if (!response.ok) throw new Error("Erro ao buscar filmes na biblioteca");
+  
+      const data = await response.json();
+      const formattedMovies = data.movies.map((movie: any) => ({
+        Title: movie.title,
+        Year: movie.imdbRating.toString(),
+        imdbID: movie.imdbID,
+        Type: "movie",
+        Poster: movie.poster,
+      }));
+      setMovies(formattedMovies || []);
+    } catch (error) {
+      console.error("Erro ao buscar filmes na biblioteca:", error);
+      alert("Erro ao buscar filmes na biblioteca");
+    }
+  };
+
+  useEffect(() => {
+    if (selectedTab === 1) {
+      handleGetMoviesInLibrary();
+    }
+  }, [selectedTab]);
+  
   return (
     <>
       <AppBar position="fixed" sx={{ backgroundColor: "#dce0e2", boxShadow: "none" }}>
@@ -187,7 +211,49 @@ const MyComponent = () => {
             </Grid>
           </div>
         )}
-        {selectedTab === 1 && <div>Conteúdo da página My Library</div>}
+        {selectedTab === 1 && 
+          <div style={{ marginTop: "64px", padding: "16px", paddingLeft: "240px" }}>
+            {/* Cards de Exibição */}
+            <Grid container spacing={30}>
+                {movies.map((movie) => (
+                  <Grid item xs={12} sm={6} md={4} lg={3} key={movie.imdbID}>
+                    <Card sx={{ width: 250, height: 548, borderRadius: "10px" }}>
+                      <CardMedia
+                        component="img"
+                        height="320"
+                        image={movie.Poster}
+                        alt={movie.Title}
+                      />
+                      <CardContent>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
+                          <Typography variant="h6">{movie.Title}</Typography>
+                          <Box sx={{ display: "flex", alignItems: "center" }}>
+                            <StarRoundedIcon sx={{ color: "#FCC419", marginLeft: 0.5 }} />
+                            <Typography>{movie.Year}</Typography>
+                          </Box>
+                        </Box>
+                        <Box sx={{ display: "flex", justifyContent: "center" }}>
+                          <Button
+                            onClick={() => handleAddToLibrary(movie.imdbID)} 
+                            variant="contained"
+                            startIcon={<LibraryBooksIcon />}
+                            sx={{
+                              borderRadius: "15px",
+                              backgroundColor: "#FE6D8E",
+                              "&:hover": {
+                                backgroundColor: "#1b5e20",
+                              },
+                            }}
+                          >
+                            Remove
+                          </Button>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+          </div>}
       </div>
     </>
   );

@@ -19,13 +19,13 @@ export class MovieService {
         return this.movieRepository.find();
     }
 
-    async findById(movieId: string): Promise<Movie> {
+    async findById(movieId: string): Promise<Movie | null> {
         const movie = await this.movieRepository.findOne({
             where: { imdbID: movieId},
         });
 
         if (!movie) {
-            throw new NotAcceptableException('Movie not found');
+            return null;
         }
 
         return movie;
