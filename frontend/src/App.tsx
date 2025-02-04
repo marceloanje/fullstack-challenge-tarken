@@ -103,6 +103,9 @@ const MyComponent = () => {
   };
 
   useEffect(() => {
+    if (selectedTab === 0 ) {
+      setMovies([]);
+    }
     if (selectedTab === 1) {
       handleGetMoviesInLibrary();
     }
@@ -184,6 +187,23 @@ const MyComponent = () => {
               />
             </Box>
 
+            {/* Tela padrão quando não há pesquisa */}
+            {movies.length === 0 && (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: "50vh",
+                  color: "#F2911B",
+                }}
+              >
+                <SearchIcon sx={{ fontSize: 100, marginBottom: 2 }} />
+                <Typography variant="h5">Faça uma pesquisa para encontrar filmes</Typography>
+              </Box>
+            )}
+
             {/* Cards de Exibição */}
             <Grid container spacing={3}>
               {movies.map((movie) => (
@@ -236,14 +256,14 @@ const MyComponent = () => {
             <Grid container spacing={3}>
                 {movies.map((movie) => (
                   <Grid item xs={12} sm={6} md={4} lg={3} key={movie.imdbID}>
-                    <Card sx={{ width: 250, height: 500, borderRadius: "10px" }}>
+                    <Card sx={{ width: 250, height: 500, borderRadius: "10px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                       <CardMedia
                         component="img"
                         height="320"
                         image={movie.Poster}
                         alt={movie.Title}
                       />
-                      <CardContent>
+                      <CardContent sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}>
                         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
                           <Typography variant="h6">{movie.Title}</Typography>
                           <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -251,12 +271,13 @@ const MyComponent = () => {
                             <Typography>{movie.Year}</Typography>
                           </Box>
                         </Box>
-                        <Box sx={{ display: "flex", justifyContent: "center" }}>
+                        <Box sx={{ display: "flex", justifyContent: "center", marginTop: "auto" }}>
                           <Button
                             onClick={() => handleDeleteLibrary(movie.imdbID)} 
                             variant="contained"
                             startIcon={<LibraryBooksIcon />}
                             sx={{
+                              width: "80%",
                               borderRadius: "15px",
                               backgroundColor: "#FE6D8E",
                               "&:hover": {
