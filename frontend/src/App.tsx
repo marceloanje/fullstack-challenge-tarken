@@ -66,6 +66,22 @@ const MyComponent = () => {
     }
   };
 
+  const handleDeleteLibrary = async (imdbID: string) => {
+    try {
+      const response = await fetch(`http://localhost:3000/library/remove-movie/${imdbID}`, {
+        method: "DELETE",
+      });
+  
+      if (!response.ok) throw new Error("Erro ao deletar filme à biblioteca");
+  
+      alert("Filme deletado da biblioteca com sucesso!");
+      handleGetMoviesInLibrary();
+    } catch (error) {
+      console.error("Erro ao deletar filme:", error);
+      alert("Erro ao deletar filme da biblioteca");
+    }
+  };
+
   const handleGetMoviesInLibrary = async () => {
     try {
       const response = await fetch("http://localhost:3000/library/movies");
@@ -212,12 +228,15 @@ const MyComponent = () => {
           </div>
         )}
         {selectedTab === 1 && 
-          <div style={{ marginTop: "64px", padding: "16px", paddingLeft: "240px" }}>
+          <div>
+            <Typography variant="h5" sx={{ fontWeight: "400", marginBottom: 2, color: "black" }}>
+              My Library
+            </Typography>
             {/* Cards de Exibição */}
-            <Grid container spacing={30}>
+            <Grid container spacing={3}>
                 {movies.map((movie) => (
                   <Grid item xs={12} sm={6} md={4} lg={3} key={movie.imdbID}>
-                    <Card sx={{ width: 250, height: 548, borderRadius: "10px" }}>
+                    <Card sx={{ width: 250, height: 500, borderRadius: "10px" }}>
                       <CardMedia
                         component="img"
                         height="320"
@@ -234,7 +253,7 @@ const MyComponent = () => {
                         </Box>
                         <Box sx={{ display: "flex", justifyContent: "center" }}>
                           <Button
-                            onClick={() => handleAddToLibrary(movie.imdbID)} 
+                            onClick={() => handleDeleteLibrary(movie.imdbID)} 
                             variant="contained"
                             startIcon={<LibraryBooksIcon />}
                             sx={{
