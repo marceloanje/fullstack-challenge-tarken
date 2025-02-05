@@ -31,7 +31,7 @@ export class MovieService {
         return movie;
     }
 
-    async updateMovieReview(imdbID: string, filePath: string): Promise<void> {
+    async updateMovieReview(imdbID: string, filePath: string | null): Promise<void> {
         await this.movieRepository.update({ imdbID }, { review: filePath });
     }
 }

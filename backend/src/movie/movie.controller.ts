@@ -1,10 +1,12 @@
-import { Controller, Post, Body, Get, Param, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Post, Body, Get, Patch, Param, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { Movie } from './movie.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Multer } from 'multer';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Controller('movies')
 export class MovieController {
@@ -59,5 +61,29 @@ export class MovieController {
     const filePath = `/uploads/${file.filename}`;
     await this.movieService.updateMovieReview(movieId, filePath);
     return { message: 'Review file uploaded successfully', filePath };
+  }
+
+  @Patch(':id/remove-review')
+  async removeReview(@Param('id') imdbID: string) {
+    try {
+      const movie = await this.movieService.findById(imdbID);
+      if (!movie) {
+        throw new Error('Movie not found');
+      }
+
+      if (movie.review) {
+        const filePath = path.resolve('uploads', path.basename(movie.review));
+
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      }
+
+      await this.movieService.updateMovieReview(imdbID, null);
+
+      return { message: 'Review and file removed successfully' };
+    } catch (error) {
+      throw new Error('Error removing review');
+    }
   }
 }

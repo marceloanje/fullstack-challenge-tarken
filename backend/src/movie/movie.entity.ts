@@ -18,8 +18,8 @@ export class Movie {
   @Column({ type: 'float' })
   imdbRating: number;
 
-  @Column({ nullable: true })
-  review: string;
+  @Column({ type: 'text', nullable: true })
+  review: string | null;
 
   @ManyToOne(() => Library, (library) => library.movies, { onDelete: 'CASCADE' })
   library: Library;
