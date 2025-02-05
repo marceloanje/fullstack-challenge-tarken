@@ -7,6 +7,8 @@ import { extname } from 'path';
 import { Multer } from 'multer';
 import * as fs from 'fs';
 import * as path from 'path';
+import { unlink } from 'fs/promises';
+import { join } from 'path';
 
 @Controller('movies')
 export class MovieController {
@@ -40,7 +42,7 @@ export class MovieController {
   @Post(':id/upload-review')
   @UseInterceptors(FileInterceptor('file', {
     storage: diskStorage({
-      destination: './uploads',
+      destination: '../uploads',
       filename: (req, file, callback) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
         const ext = extname(file.originalname);
@@ -72,8 +74,8 @@ export class MovieController {
       }
 
       if (movie.review) {
-        const filePath = path.resolve('uploads', path.basename(movie.review));
-
+        const filePath = path.resolve(__dirname, '..', '..', '..', 'uploads', path.basename(movie.review));
+        
         if (fs.existsSync(filePath)) {
           fs.unlinkSync(filePath);
         }
