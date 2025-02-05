@@ -1,6 +1,10 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { MovieService } from './movie.service';
 import { Movie } from './movie.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { Multer } from 'multer';
 
 @Controller('movies')
 export class MovieController {
@@ -29,5 +33,31 @@ export class MovieController {
     } catch (error) {
       throw new Error('Error fetching movie');
     }
+  }
+
+  @Post(':id/upload-review')
+  @UseInterceptors(FileInterceptor('file', {
+    storage: diskStorage({
+      destination: './uploads',
+      filename: (req, file, callback) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const ext = extname(file.originalname);
+        const filename = `${uniqueSuffix}${ext}`;
+        callback(null, filename);
+      },
+    }),
+  }))
+  async uploadReview(
+    @Param('id') movieId: string,
+    @UploadedFile() file: Multer.File,
+  ) {
+    const movie = await this.movieService.findById(movieId);
+
+    if (!movie) {
+      throw new Error(`Movie with id ${movieId} not found`);
+    }
+    const filePath = `/uploads/${file.filename}`;
+    await this.movieService.updateMovieReview(movieId, filePath);
+    return { message: 'Review file uploaded successfully', filePath };
   }
 }
