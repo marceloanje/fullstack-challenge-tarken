@@ -13,10 +13,14 @@ import {
   InputAdornment,
   Box,
   Button,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import StarRoundedIcon from "@mui/icons-material/StarRounded";
 import LibraryBooksIcon from "@mui/icons-material/LibraryBooks";
+import PlayCircleFilledWhiteRoundedIcon from '@mui/icons-material/PlayCircleFilledWhiteRounded';
+import StopCircleIcon from '@mui/icons-material/StopCircle';
 
 interface Movie {
   Title: string;
@@ -24,12 +28,15 @@ interface Movie {
   imdbID: string;
   Type: string;
   Poster: string;
+  Review: string;
 }
 
 const MyComponent = () => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [movies, setMovies] = useState<Movie[]>([]);
+  const [isPlaying, setIsPlaying] = useState<{ [key: string]: boolean }>({});
+  const [audio, setAudio] = useState<{ [key: string]: HTMLAudioElement | null }>({});
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setSelectedTab(newValue);
@@ -94,6 +101,7 @@ const MyComponent = () => {
         imdbID: movie.imdbID,
         Type: "movie",
         Poster: movie.poster,
+        Review: movie.review,
       }));
       setMovies(formattedMovies || []);
     } catch (error) {
@@ -110,6 +118,28 @@ const MyComponent = () => {
       handleGetMoviesInLibrary();
     }
   }, [selectedTab]);
+
+  const handlePlayAudio = (movieId: string, reviewUrl: string) => {
+    if (isPlaying[movieId]) return;
+    const audioInstance = new Audio(`http://localhost:3000${reviewUrl}`);
+    audioInstance.play().catch((error) => {
+      console.error("Erro ao reproduzir o áudio:", error);
+      alert("Não foi possível reproduzir o áudio.");
+    });
+
+    setIsPlaying((prev) => ({ ...prev, [movieId]: true }));
+    setAudio((prev) => ({ ...prev, [movieId]: audioInstance }));
+  };
+
+  const handleStopAudio = (movieId: string) => {
+    const currentAudio = audio[movieId];
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+    }
+
+    setIsPlaying((prev) => ({ ...prev, [movieId]: false }));
+  };
   
   return (
     <>
@@ -255,14 +285,57 @@ const MyComponent = () => {
             {/* Cards de Exibição */}
             <Grid container spacing={3}>
                 {movies.map((movie) => (
-                  <Grid item xs={12} sm={6} md={4} lg={3} key={movie.imdbID}>
-                    <Card sx={{ width: 250, height: 500, borderRadius: "10px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                      <CardMedia
-                        component="img"
-                        height="320"
-                        image={movie.Poster}
-                        alt={movie.Title}
-                      />
+                  <Grid item key={movie.imdbID} sx={{ flexBasis: '22%', minWidth: '250px', maxWidth: '300px' }}>
+                    <Card sx={{ width: '100%', height: '500px', borderRadius: '10px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', '&:hover .hover-message': {display: 'block',} }}>
+                      <Box sx={{ position: 'relative' }}>
+                        <CardMedia
+                          component="img"
+                          height="320"
+                          image={movie.Poster}
+                          alt={movie.Title}
+                        />
+                        {movie.Review ? (
+                          <Tooltip title="Listen to your audio review" arrow>
+                            <IconButton
+                              sx={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                color: 'white',
+                                '&:hover': {
+                                  backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                },
+                              }}
+                              onClick={() => {
+                                if (isPlaying[movie.imdbID]) {
+                                  handleStopAudio(movie.imdbID);
+                                } else {
+                                  handlePlayAudio(movie.imdbID, movie.Review);
+                                }
+                              }}
+                            >
+                              {isPlaying[movie.imdbID] ? <StopCircleIcon /> : <PlayCircleFilledWhiteRoundedIcon />}
+                            </IconButton>
+                          </Tooltip>
+                        ) : (
+                          <Box className="hover-message" sx={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%)',
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            padding: '10px',
+                            borderRadius: '5px',
+                            color: 'white',
+                            textAlign: 'center',
+                            display: 'none',
+                          }}>
+                            <Typography variant="body2">Record a review on mobile app</Typography>
+                          </Box>
+                        )}
+                      </Box>  
                       <CardContent sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}>
                         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 }}>
                           <Typography variant="h6">{movie.Title}</Typography>
